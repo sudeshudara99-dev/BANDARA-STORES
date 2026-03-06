@@ -38,6 +38,7 @@
 
     <div class="hero">
         <h2>Online Shop</h2>
+        <p id="status">දත්ත පූරණය වෙමින් පවතී...</p>
     </div>
 
     <div class="controls">
@@ -63,18 +64,19 @@
         let cart = [];
         const myWhatsApp = "94711877276"; // මෙතනට ඔයාගේ අංකය දාන්න
 
-        // මම මෙතනට ඔයාගේ CSV ෆයිල් එකේ නම (web stock.csv) දැම්මා
+        // PapaParse භාවිතයෙන් web stock.csv කියවමු
         Papa.parse("web stock.csv", {
             download: true,
             header: true,
+            dynamicTyping: true, // මේකෙන් අර E+12 වගේ අංක හරියට කියවනවා
             skipEmptyLines: true,
             complete: function(results) {
-                // CSV එකේ දත්ත කියවගන්න බැරි නම් Error එකක් එයි, ඒක නිසා මෙහෙම කළා
-                allProducts = results.data;
-                if(allProducts.length === 0) {
-                    alert("දත්ත කියවීමට නොහැක. කරුණාකර CSV ෆයිල් එක පරීක්ෂා කරන්න.");
-                }
+                allProducts = results.data.filter(p => p.name);
+                document.getElementById('status').innerText = `භාණ්ඩ ${allProducts.length} ක් සූදානම්!`;
                 render();
+            },
+            error: function() {
+                document.getElementById('status').innerText = "දත්ත කියවීමේ දෝෂයක්! web stock.csv ෆයිල් එක පරීක්ෂා කරන්න.";
             }
         });
 
@@ -83,13 +85,13 @@
             const grid = document.getElementById('grid');
             grid.innerHTML = '';
             
-            allProducts.filter(p => p.name && p.name.toLowerCase().includes(term)).forEach((p, index) => {
+            allProducts.filter(p => String(p.name).toLowerCase().includes(term)).forEach((p, index) => {
                 grid.innerHTML += `
                     <div class="card">
                         <h3 style="font-size: 0.9rem; height: 40px; overflow: hidden;">${p.name}</h3>
-                        <div class="mrp">MRP: රු. ${p.mrp}</div>
-                        <div class="sp">අපේ මිල: රු. ${p.sp}</div>
-                        <button class="add-btn" onclick="addToCart('${index}')">Add to Cart</button>
+                        <div class="mrp">MRP: රු. ${p.mrp || 0}</div>
+                        <div class="sp">අපේ මිල: රු. ${p.sp || 0}</div>
+                        <button class="add-btn" onclick="addToCart(${index})">Add to Cart</button>
                     </div>`;
             });
         }
@@ -105,10 +107,11 @@
             document.getElementById('count').innerText = cart.reduce((s, i) => s + i.qty, 0);
             let tot = 0;
             document.getElementById('cartList').innerHTML = cart.map(i => {
-                tot += parseFloat(i.sp) * i.qty;
+                const itemTotal = (i.sp || 0) * i.qty;
+                tot += itemTotal;
                 return `<div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:0.9rem;">
                     <span>${i.name} (x${i.qty})</span>
-                    <span>රු. ${(i.sp * i.qty).toFixed(2)}</span>
+                    <span>රු. ${itemTotal.toFixed(2)}</span>
                 </div>`;
             }).join('');
             document.getElementById('total').innerText = tot.toFixed(2);
