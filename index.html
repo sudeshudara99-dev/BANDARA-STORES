@@ -11,18 +11,18 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
         body { background: var(--bg); }
         nav { background: var(--primary); color: white; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; }
-        .hero { background: #1e293b; color: white; text-align: center; padding: 30px 20px; }
-        .controls { max-width: 1200px; margin: 20px auto; padding: 0 20px; }
+        .hero { background: #1e293b; color: white; text-align: center; padding: 20px; }
+        .controls { max-width: 1200px; margin: 15px auto; padding: 0 20px; }
         .search-input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ddd; font-size: 1rem; }
-        .container { max-width: 1200px; margin: auto; padding: 20px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; }
+        .container { max-width: 1200px; margin: auto; padding: 15px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
         .card { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); text-align: center; border: 1px solid #eee; }
-        .mrp { text-decoration: line-through; color: #94a3b8; font-size: 0.85rem; }
-        .sp { font-size: 1.1rem; font-weight: bold; color: var(--accent); display: block; }
-        .add-btn { background: var(--primary); color: white; border: none; width: 100%; padding: 10px; border-radius: 5px; cursor: pointer; margin-top: 10px; }
-        /* Cart Modal Styles */
+        .mrp { text-decoration: line-through; color: #94a3b8; font-size: 0.8rem; margin-top: 5px; }
+        .sp { font-size: 1.1rem; font-weight: bold; color: var(--accent); margin: 5px 0; display: block; }
+        .add-btn { background: var(--primary); color: white; border: none; width: 100%; padding: 10px; border-radius: 5px; cursor: pointer; font-weight: bold; }
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: flex-end; }
-        .modal-content { background: white; width: 100%; max-width: 400px; height: 100%; padding: 20px; overflow-y: auto; }
+        .modal-content { background: white; width: 100%; max-width: 400px; height: 100%; padding: 20px; display: flex; flex-direction: column; }
+        .item-list { flex-grow: 1; overflow-y: auto; margin: 15px 0; }
         .checkout-input { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px; }
         .wa-btn { background: #25D366; color: white; border: none; width: 100%; padding: 15px; border-radius: 5px; font-weight: bold; cursor: pointer; }
     </style>
@@ -38,7 +38,6 @@
 
     <div class="hero">
         <h2>Online Shop</h2>
-        <p>අපගේ මිල ගණන් පරීක්ෂා කර ඇණවුම් කරන්න</p>
     </div>
 
     <div class="controls">
@@ -50,8 +49,8 @@
     <div id="modal" class="modal">
         <div class="modal-content">
             <h3>ඔබේ ඇණවුම</h3>
-            <div id="cartList" style="margin: 20px 0;"></div>
-            <div style="font-weight:bold; font-size:1.2rem; margin-bottom:20px;">එකතුව: රු. <span id="total">0.00</span></div>
+            <div id="cartList" class="item-list"></div>
+            <div style="font-weight:bold; font-size:1.2rem; margin-bottom:15px;">එකතුව: රු. <span id="total">0.00</span></div>
             <input type="text" id="userName" class="checkout-input" placeholder="ඔබේ නම">
             <input type="text" id="userAddress" class="checkout-input" placeholder="ලිපිනය">
             <button class="wa-btn" onclick="sendOrder()">WhatsApp හරහා ඇණවුම් කරන්න</button>
@@ -62,14 +61,19 @@
     <script>
         let allProducts = [];
         let cart = [];
-        const myWhatsApp = "94711877276"; // මෙතනට 94 එක්ක ඔයාගේ අංකය දාන්න
+        const myWhatsApp = "94711877276"; // මෙතනට ඔයාගේ අංකය දාන්න
 
-        // CSV එක කියවමු
-        Papa.parse("products.csv", {
+        // මම මෙතනට ඔයාගේ CSV ෆයිල් එකේ නම (web stock.csv) දැම්මා
+        Papa.parse("web stock.csv", {
             download: true,
             header: true,
+            skipEmptyLines: true,
             complete: function(results) {
-                allProducts = results.data.filter(p => p.name);
+                // CSV එකේ දත්ත කියවගන්න බැරි නම් Error එකක් එයි, ඒක නිසා මෙහෙම කළා
+                allProducts = results.data;
+                if(allProducts.length === 0) {
+                    alert("දත්ත කියවීමට නොහැක. කරුණාකර CSV ෆයිල් එක පරීක්ෂා කරන්න.");
+                }
                 render();
             }
         });
@@ -79,31 +83,31 @@
             const grid = document.getElementById('grid');
             grid.innerHTML = '';
             
-            allProducts.filter(p => p.name.toLowerCase().includes(term)).forEach(p => {
+            allProducts.filter(p => p.name && p.name.toLowerCase().includes(term)).forEach((p, index) => {
                 grid.innerHTML += `
                     <div class="card">
-                        <h3>${p.name}</h3>
-                        <div class="mrp">සඳහන් මිල: රු. ${p.mrp}</div>
-                        <div class="sp">අපගේ මිල: රු. ${p.sp}</div>
-                        <button class="add-btn" onclick="addToCart('${p.id}')">Add to Cart</button>
+                        <h3 style="font-size: 0.9rem; height: 40px; overflow: hidden;">${p.name}</h3>
+                        <div class="mrp">MRP: රු. ${p.mrp}</div>
+                        <div class="sp">අපේ මිල: රු. ${p.sp}</div>
+                        <button class="add-btn" onclick="addToCart('${index}')">Add to Cart</button>
                     </div>`;
             });
         }
 
-        function addToCart(id) {
-            const p = allProducts.find(x => x.id === id);
-            const exist = cart.find(x => x.id === id);
+        function addToCart(index) {
+            const p = allProducts[index];
+            const exist = cart.find(x => x.name === p.name);
             if(exist) exist.qty++; else cart.push({...p, qty: 1});
             updateCart();
         }
 
         function updateCart() {
-            document.getElementById('count').innerText = cart.reduce((s, i) => s + parseInt(i.qty), 0);
+            document.getElementById('count').innerText = cart.reduce((s, i) => s + i.qty, 0);
             let tot = 0;
             document.getElementById('cartList').innerHTML = cart.map(i => {
                 tot += parseFloat(i.sp) * i.qty;
-                return `<div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                    <span>${i.name} x ${i.qty}</span>
+                return `<div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:0.9rem;">
+                    <span>${i.name} (x${i.qty})</span>
                     <span>රු. ${(i.sp * i.qty).toFixed(2)}</span>
                 </div>`;
             }).join('');
