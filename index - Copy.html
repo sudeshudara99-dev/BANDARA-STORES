@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bandara Stores | Online Shopping</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1e293b;
+            --secondary: #3b82f6;
+            --accent: #10b981;
+            --bg: #f8fafc;
+            --text: #333;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: var(--bg); color: var(--text); }
+
+        nav {
+            background-color: var(--primary);
+            color: white;
+            padding: 1rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .cart-icon {
+            font-size: 1.2rem;
+            cursor: pointer;
+            position: relative;
+            background: var(--secondary);
+            padding: 8px 15px;
+            border-radius: 5px;
+        }
+
+        .cart-count {
+            position: absolute; top: -8px; right: -8px;
+            background: #ef4444; color: white; border-radius: 50%;
+            padding: 2px 8px; font-size: 0.8rem; font-weight: bold;
+        }
+
+        .hero {
+            background: linear-gradient(rgba(30, 41, 59, 0.8), rgba(30, 41, 59, 0.9)), url('https://images.unsplash.com/photo-1578916171728-46686eac8d58?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80') center/cover;
+            color: white; text-align: center; padding: 60px 20px;
+        }
+
+        .controls-container {
+            max-width: 1200px; margin: 20px auto; padding: 0 5%;
+            display: flex; flex-wrap: wrap; gap: 15px; justify-content: space-between; align-items: center;
+        }
+
+        .search-box { flex: 1; min-width: 250px; position: relative; }
+        .search-box input { width: 100%; padding: 12px 40px 12px 15px; border: 1px solid #cbd5e1; border-radius: 25px; outline: none; }
+        .search-box i { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
+
+        .category-filter { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px; }
+        .cat-btn { background: white; border: 1px solid var(--secondary); color: var(--secondary); padding: 8px 15px; border-radius: 20px; cursor: pointer; white-space: nowrap; transition: 0.3s; }
+        .cat-btn.active { background: var(--secondary); color: white; }
+
+        .container { padding: 20px 5% 40px; max-width: 1200px; margin: auto; }
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+        .product-card { background: white; border-radius: 10px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); text-align: center; transition: transform 0.2s; }
+        .product-card:hover { transform: translateY(-5px); }
+        .price-section { margin: 15px 0; }
+        .mrp { text-decoration: line-through; color: #94a3b8; font-size: 0.8rem; }
+        .selling-price { color: var(--accent); font-size: 1.3rem; font-weight: bold; }
+
+        .btn-add { background: var(--secondary); color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; width: 100%; font-weight: bold; }
+
+        .cart-modal { display: none; position: fixed; top: 0; right: 0; bottom: 0; left: 0; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: flex-end; }
+        .cart-content { background: white; width: 100%; max-width: 400px; height: 100%; padding: 20px; display: flex; flex-direction: column; }
+        .cart-items { flex-grow: 1; overflow-y: auto; }
+        .cart-item { display: flex; justify-content: space-between; margin-bottom: 15px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 10px; font-size: 0.9rem; }
+
+        .checkout-form input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #cbd5e1; border-radius: 5px; }
+        .btn-whatsapp { background: #25D366; color: white; border: none; padding: 12px; border-radius: 5px; width: 100%; cursor: pointer; font-weight: bold; font-size: 1.1rem; }
+
+        #loading { text-align: center; font-size: 1.2rem; padding: 50px; color: var(--primary); }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <h1>BANDARA STORES</h1>
+        <div class="cart-icon" onclick="toggleCart()">
+            <i class="fas fa-shopping-cart"></i> Cart <span class="cart-count" id="cartCount">0</span>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <h2>සියලුම භාණ්ඩ එකම තැනකින්!</h2>
+        <p>භාණ්ඩ 1000+ කට අධික ප්‍රමාණයක් දැන් ඇණවුම් කළ හැක.</p>
+    </header>
+
+    <div class="controls-container">
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="භාණ්ඩයේ නම සොයන්න..." onkeyup="filterProducts()">
+            <i class="fas fa-search"></i>
+        </div>
+        <div class="category-filter" id="categoryFilter">
+            <button class="cat-btn active" onclick="filterByCategory('All', this)">සියල්ල</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div id="loading">භාණ්ඩ පූරණය වෙමින් පවතී...</div>
+        <div class="product-grid" id="productGrid"></div>
+    </div>
+
+    <div class="cart-modal" id="cartModal">
+        <div class="cart-content">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h2>ඇණවුම</h2>
+                <span style="cursor:pointer; font-size:1.8rem; color:red;" onclick="toggleCart()">&times;</span>
+            </div>
+            <div class="cart-items" id="cartItems"></div>
+            <div style="font-size:1.2rem; font-weight:bold; text-align:right; margin:20px 0;">එකතුව: රු. <span id="cartTotal">0.00</span></div>
+            <div class="checkout-form">
+                <input type="text" id="customerName" placeholder="නම">
+                <input type="text" id="customerAddress" placeholder="ලිපිනය">
+                <button class="btn-whatsapp" onclick="sendWhatsAppOrder()"><i class="fab fa-whatsapp"></i> WhatsApp හරහා යවන්න</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ඔයාගේ Sheet ID එක
+        const SHEET_ID = '11lS2yE4kEhVxMbRYM0no7uqS-ri58J-bMCPA7CVRwL4'; 
+        // CSV Format එකෙන් දත්ත ලබා ගැනීම (වඩාත් ස්ථාවරයි)
+        const CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/pub?output=csv`;
+
+        let products = [];
+        let cart = [];
+        let currentCategory = 'All';
+
+        async function fetchProducts() {
+            try {
+                const response = await fetch(CSV_URL);
+                if (!response.ok) throw new Error('වෙබ් එකෙන් දත්ත ගන්න බැහැ!');
+                const data = await response.text();
+                
+                // CSV පේළි වලට වෙන් කිරීම
+                const rows = data.split(/\r?\n/).slice(1); // පළවෙනි පේළිය (Headers) ඉවත් කිරීම
+                
+                products = rows.map(row => {
+                    // කොමා වලින් වෙන් වූ දත්ත (CSV)
+                    const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/); // Quotes ඇතුලේ තියෙන කොමා ගැන සැළකිලිමත් වේ
+                    if (cols.length < 4) return null;
+
+                    return {
+                        id: cols[0].replace(/"/g, '').trim(),
+                        name: cols[1].replace(/"/g, '').trim(),
+                        mrp: parseFloat(cols[2]) || 0,
+                        sellingPrice: parseFloat(cols[3]) || 0,
+                        category: cols[4] ? cols[4].replace(/"/g, '').trim() : 'General'
+                    };
+                }).filter(p => p !== null && p.name !== "");
+
+                setupCategories();
+                document.getElementById('loading').style.display = 'none';
+                loadProducts(products);
+            } catch (error) {
+                console.error("Error Details:", error);
+                document.getElementById('loading').innerHTML = `
+                    <div style="color: red; padding: 20px; border: 1px solid red; background: #fff1f1; border-radius: 8px;">
+                        <b>දත්ත ලබා ගැනීම තවමත් අසාර්ථකයි!</b><br><br>
+                        මෙයට හේතුව ඔයා මේ file එක direct browser එකේ (File://) open කිරීම විය හැක. <br>
+                        මේ කෝඩ් එක වැඩ කරන්න නම් <b>GitHub Pages</b> හෝ <b>Netlify</b> වැනි තැනකට upload කරන්න ඕනේ.
+                    </div>`;
+            }
+        }
+
+        function setupCategories() {
+            const categories = ['All', ...new Set(products.map(p => p.category))];
+            const filterDiv = document.getElementById('categoryFilter');
+            filterDiv.innerHTML = categories.map(cat => 
+                `<button class="cat-btn ${cat === 'All' ? 'active' : ''}" onclick="filterByCategory('${cat}', this)">${cat === 'All' ? 'සියල්ල' : cat}</button>`
+            ).join('');
+        }
+
+        function loadProducts(data) {
+            const grid = document.getElementById('productGrid');
+            if (data.length === 0) {
+                grid.innerHTML = "<p>කිසිදු භාණ්ඩයක් හමු නොවීය.</p>";
+                return;
+            }
+            grid.innerHTML = data.map(p => `
+                <div class="product-card">
+                    <h3 style="font-size:1.1rem; height:45px; overflow:hidden;">${p.name}</h3>
+                    <div class="price-section">
+                        <div class="mrp">රු. ${p.mrp.toFixed(2)}</div>
+                        <div class="selling-price">රු. ${p.sellingPrice.toFixed(2)}</div>
+                    </div>
+                    <button class="btn-add" onclick="addToCart('${p.id}')">Add to Cart</button>
+                </div>
+            `).join('');
+        }
+
+        function filterByCategory(cat, btn) {
+            currentCategory = cat;
+            document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            filterProducts();
+        }
+
+        function filterProducts() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = products.filter(p => 
+                (currentCategory === 'All' || p.category === currentCategory) &&
+                p.name.toLowerCase().includes(search)
+            );
+            loadProducts(filtered);
+        }
+
+        function addToCart(id) {
+            const product = products.find(p => p.id == id);
+            const item = cart.find(i => i.id == id);
+            item ? item.qty++ : cart.push({...product, qty: 1});
+            updateUI();
+        }
+
+        function updateUI() {
+            document.getElementById('cartCount').innerText = cart.reduce((s, i) => s + i.qty, 0);
+            const total = cart.reduce((s, i) => s + (i.sellingPrice * i.qty), 0);
+            document.getElementById('cartTotal').innerText = total.toFixed(2);
+            document.getElementById('cartItems').innerHTML = cart.map((i, idx) => `
+                <div class="cart-item">
+                    <div><b>${i.name}</b><br><small>රු. ${i.sellingPrice} x ${i.qty}</small></div>
+                    <div style="text-align:right">
+                        <b>රු. ${(i.sellingPrice * i.qty).toFixed(2)}</b><br>
+                        <i class="fas fa-trash" style="color:red; cursor:pointer;" onclick="removeItem(${idx})"></i>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function removeItem(idx) { cart.splice(idx, 1); updateUI(); }
+        function toggleCart() { const m = document.getElementById('cartModal'); m.style.display = m.style.display === 'flex' ? 'none' : 'flex'; }
+
+        function sendWhatsAppOrder() {
+            const name = document.getElementById('customerName').value.trim();
+            const address = document.getElementById('customerAddress').value.trim();
+            if(!name || !address || cart.length === 0) return alert("විස්තර ඇතුළත් කරන්න!");
+
+            let msg = `*BANDARA STORES ORDER*%0AName: ${name}%0AAddr: ${address}%0A%0A*Items:*%0A`;
+            cart.forEach(i => msg += `- ${i.name} (x${i.qty})%0A`);
+            msg += `%0A*Total: රු. ${document.getElementById('cartTotal').innerText}*`;
+            
+            // ඔයාගේ WhatsApp අංකය මෙහි ඇතුළත් කරන්න
+            window.open(`https://wa.me/94700000000?text=${msg}`, '_blank');
+        }
+
+        window.onload = fetchProducts;
+    </script>
+</body>
+</html>
