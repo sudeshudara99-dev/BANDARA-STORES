@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>බණ්ඩාර ස්ටෝර්ස් - Modern Online Store</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Sinhala:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <style>
+        :root {
+            --primary: #1e293b;
+            --accent: #10b981;
+            --white: #ffffff;
+            --text-main: #0f172a;
+            --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        body {
+            font-family: 'Noto Sans Sinhala', sans-serif;
+            margin: 0;
+            background: #f1f5f9;
+            color: var(--text-main);
+            overflow-x: hidden;
+        }
+
+        /* Hero Section with Animation */
+        header {
+            background: linear-gradient(rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.9)), 
+                        url('https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=1200&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: white;
+            padding: 80px 20px;
+            text-align: center;
+            border-bottom-left-radius: 50px;
+            border-bottom-right-radius: 50px;
+            animation: fadeInDown 1s;
+        }
+
+        header h1 { font-size: 42px; margin: 0; color: var(--accent); font-weight: 800; }
+        header p { font-size: 18px; opacity: 0.9; margin-top: 10px; }
+
+        /* Floating Controls */
+        .controls {
+            max-width: 800px;
+            width: 90%;
+            margin: -30px auto 30px;
+            background: white;
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            z-index: 10;
+            position: relative;
+            animation: fadeInUp 1s;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 15px 45px;
+            border: 2px solid #e2e8f0;
+            border-radius: 15px;
+            font-size: 16px;
+            outline: none;
+            transition: var(--transition);
+            box-sizing: border-box;
+        }
+
+        .search-box:focus { border-color: var(--accent); box-shadow: 0 0 15px rgba(16, 185, 129, 0.2); }
+
+        .category-bar {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            margin-top: 15px;
+            padding: 5px;
+            scrollbar-width: none;
+        }
+
+        .cat-btn {
+            padding: 10px 25px;
+            border-radius: 30px;
+            border: none;
+            background: #f1f5f9;
+            cursor: pointer;
+            font-weight: 700;
+            white-space: nowrap;
+            transition: var(--transition);
+        }
+
+        .cat-btn.active { background: var(--accent); color: white; transform: scale(1.05); }
+
+        /* Product Grid */
+        .container { max-width: 1200px; margin: auto; padding: 20px; }
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 25px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 25px;
+            padding: 20px;
+            text-align: center;
+            transition: var(--transition);
+            border: 1px solid #f1f5f9;
+            animation: zoomIn 0.5s;
+        }
+
+        .card:hover { transform: translateY(-10px); box-shadow: 0 20px 30px rgba(0,0,0,0.1); }
+
+        .item-img {
+            width: 100%; height: 140px;
+            background: #f8fafc;
+            border-radius: 20px;
+            margin-bottom: 15px;
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden;
+        }
+        .item-img img { width: 100%; height: 100%; object-fit: cover; }
+        .item-img i { font-size: 50px; color: #cbd5e1; }
+
+        .item-name { font-weight: 800; font-size: 17px; margin-bottom: 10px; display: block; height: 45px; }
+        .price-tag { color: var(--accent); font-weight: 800; font-size: 20px; margin-bottom: 15px; display: block; }
+
+        .add-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 12px;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .add-btn:hover { background: var(--accent); transform: scale(1.05); }
+
+        /* Professional Cart Sidebar */
+        .floating-cart {
+            position: fixed; bottom: 30px; right: 30px;
+            background: var(--primary); color: white;
+            width: 70px; height: 70px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 30px; cursor: pointer;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            z-index: 1000;
+            transition: var(--transition);
+        }
+        .floating-cart:hover { transform: scale(1.1) rotate(-10deg); }
+
+        .cart-sidebar {
+            position: fixed; top: 0; right: -100%;
+            width: 100%; max-width: 450px; height: 100%;
+            background: white; z-index: 1001;
+            transition: 0.5s cubic-bezier(0.77, 0, 0.175, 1);
+            display: flex; flex-direction: column;
+            box-shadow: -15px 0 35px rgba(0,0,0,0.1);
+        }
+        .cart-sidebar.open { right: 0; }
+
+        .cart-header { padding: 30px 20px; background: var(--primary); color: white; display: flex; justify-content: space-between; align-items: center; }
+        .cart-body { flex: 1; padding: 20px; overflow-y: auto; background: #f8fafc; }
+        .cart-item {
+            background: white; padding: 15px; border-radius: 15px;
+            margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+            animation: slideInRight 0.3s;
+        }
+
+        .checkout-btn {
+            background: #25d366; color: white; border: none;
+            width: 100%; padding: 18px; border-radius: 15px;
+            font-size: 18px; font-weight: 800; cursor: pointer;
+            transition: var(--transition);
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+        }
+        .checkout-btn:hover { background: #128c7e; transform: translateY(-3px); }
+
+        .overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(5px);
+            z-index: 1000; display: none;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
+
+    </style>
+</head>
+<body>
+
+<header>
+    <h1 class="animate__animated animate__bounceIn">බණ්ඩාර ස්ටෝර්ස්</h1>
+    <p class="animate__animated animate__fadeInUp animate__delay-1s">නවගත්තේගම - තොග සහ සිල්ලර වෙළෙන්දෝ</p>
+</header>
+
+<div class="controls">
+    <div style="position: relative;">
+        <i class="fas fa-search" style="position: absolute; left: 18px; top: 18px; color: #94a3b8;"></i>
+        <input type="text" id="searchBar" class="search-box" placeholder="අවශ්‍ය දේ මෙතන සොයන්න..." oninput="render()">
+    </div>
+    <div class="category-bar" id="categoryBar"></div>
+</div>
+
+<div class="container">
+    <div id="productDisplay" class="product-grid"></div>
+</div>
+
+<div class="floating-cart" onclick="toggleCart()">
+    <i class="fas fa-shopping-bag"></i>
+    <div style="position: absolute; top: 0; right: 0; background: #ef4444; width: 25px; height: 25px; border-radius: 50%; font-size: 14px; display: flex; align-items: center; justify-content: center; border: 2px solid white;" id="cartBadge">0</div>
+</div>
+
+<div class="overlay" id="overlay" onclick="toggleCart()"></div>
+
+<div class="cart-sidebar" id="cartSidebar">
+    <div class="cart-header">
+        <h2 style="margin: 0;"><i class="fas fa-shopping-cart"></i> ඔබේ ඇණවුම</h2>
+        <i class="fas fa-times" onclick="toggleCart()" style="cursor: pointer; font-size: 25px;"></i>
+    </div>
+    <div class="cart-body" id="cartBody"></div>
+    <div style="padding: 25px; background: white; border-top: 1px solid #eee;">
+        <div style="display: flex; justify-content: space-between; font-weight: 800; font-size: 22px; margin-bottom: 20px; color: var(--accent);">
+            <span>මුළු එකතුව:</span>
+            <span>රු. <span id="cartTotal">0.00</span></span>
+        </div>
+        <input type="text" id="custName" class="search-box" style="margin-bottom: 10px;" placeholder="ඔබේ නම">
+        <input type="text" id="custAddress" class="search-box" style="margin-bottom: 20px;" placeholder="බඩු එවිය යුතු ලිපිනය">
+        <button class="checkout-btn" onclick="sendWhatsApp()">
+            <i class="fab fa-whatsapp"></i> WhatsApp හරහා ඇණවුම් කරන්න
+        </button>
+    </div>
+</div>
+
+<script>
+    const API_URL = 'https://script.google.com/macros/s/AKfycbxAxjLiXRNcRdO-Z90LL5zars9EQKkRZfqQyjKAScRP-6t1E4kqo92CptKp_PBguAaU/exec';
+    let products = [];
+    let cart = {};
+    let selectedCat = 'All';
+
+    async function load() {
+        const res = await fetch(API_URL);
+        products = await res.json();
+        updateCats();
+        render();
+    }
+
+    function updateCats() {
+        const cats = ['All', ...new Set(products.map(p => p.Category).filter(c => c))];
+        document.getElementById('categoryBar').innerHTML = cats.map(c => `
+            <button class="cat-btn ${selectedCat === c ? 'active' : ''}" onclick="setCat('${c}')">
+                ${c === 'All' ? 'සියල්ල' : c}
+            </button>
+        `).join('');
+    }
+
+    function setCat(c) { selectedCat = c; updateCats(); render(); }
+
+    function render() {
+        const search = document.getElementById('searchBar').value.toLowerCase();
+        const display = document.getElementById('productDisplay');
+        const filtered = products.filter(p => (selectedCat === 'All' || p.Category === selectedCat) && (p.Name && p.Name.toLowerCase().includes(search)));
+
+        display.innerHTML = filtered.map((p, i) => {
+            const price = parseFloat(p.Price || p.OurPrice || 0);
+            return `
+            <div class="card animate__animated animate__fadeInUp">
+                <div class="item-img">
+                    ${p.Photo ? `<img src="${p.Photo}">` : `<i class="fas fa-box-open"></i>`}
+                </div>
+                <span class="item-name">${p.Name}</span>
+                <span class="price-tag">රු. ${price.toFixed(2)}</span>
+                <div style="display: flex; gap: 8px;">
+                    <input type="number" id="qty-${i}" value="1" min="1" style="width: 60px; border-radius: 10px; border: 1px solid #ddd; text-align: center; font-weight: 700;">
+                    <button class="add-btn" onclick="addToCart('${p.Name.replace(/'/g, "\\'")}', ${price}, ${i})">එක් කරන්න</button>
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    function addToCart(name, price, i) {
+        const qty = parseFloat(document.getElementById(`qty-${i}`).value);
+        cart[name] = cart[name] || { price, qty: 0 };
+        cart[name].qty += qty;
+        updateCartUI();
+        
+        const btn = document.querySelectorAll('.add-btn')[i];
+        btn.innerHTML = 'එක් කළා ✅';
+        btn.style.background = '#10b981';
+        setTimeout(() => { btn.innerHTML = 'එක් කරන්න'; btn.style.background = ''; }, 1000);
+    }
+
+    function updateCartUI() {
+        const body = document.getElementById('cartBody');
+        let total = 0, count = 0;
+        body.innerHTML = '';
+        for (let name in cart) {
+            const sub = cart[name].price * cart[name].qty;
+            total += sub; count++;
+            body.innerHTML += `
+                <div class="cart-item">
+                    <div style="flex:1;">
+                        <b style="display:block;">${name}</b>
+                        <small>${cart[name].qty} x ${cart[name].price.toFixed(2)}</small>
+                    </div>
+                    <div style="font-weight:800; color:var(--accent); margin: 0 15px;">${sub.toFixed(2)}</div>
+                    <i class="fas fa-trash" onclick="remove('${name.replace(/'/g, "\\'")}')" style="color:#ef4444; cursor:pointer;"></i>
+                </div>`;
+        }
+        document.getElementById('cartTotal').innerText = total.toFixed(2);
+        document.getElementById('cartBadge').innerText = count;
+    }
+
+    function remove(n) { delete cart[n]; updateCartUI(); }
+    function toggleCart() { document.getElementById('cartSidebar').classList.toggle('open'); document.getElementById('overlay').style.display = document.getElementById('overlay').style.display === 'block' ? 'none' : 'block'; }
+
+    function sendWhatsApp() {
+        const name = document.getElementById('custName').value;
+        const addr = document.getElementById('custAddress').value;
+        if(!name || !addr) return alert("කරුණාකර නම සහ ලිපිනය ඇතුලත් කරන්න.");
+        let msg = `*නව ඇණවුම - බණ්ඩාර ස්ටෝර්ස්*%0A👤 නම: ${name}%0A📍 ලිපිනය: ${addr}%0A%0A🛍️ *භාණ්ඩ ලැයිස්තුව:*%0A`;
+        for (let n in cart) msg += `• ${n} (x${cart[n].qty}) = රු.${(cart[n].price * cart[n].qty).toFixed(2)}%0A`;
+        msg += `%0A💰 *මුළු එකතුව: රු. ${document.getElementById('cartTotal').innerText}*`;
+        window.open(`https://wa.me/94717078208?text=${msg}`);
+    }
+
+    load();
+</script>
+</body>
+</html>
