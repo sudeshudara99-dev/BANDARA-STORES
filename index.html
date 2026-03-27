@@ -174,21 +174,62 @@
         const body = document.getElementById('cartBody');
         let total = 0, count = 0;
         body.innerHTML = '';
-        for (let name in cart) {
-            const sub = cart[name].price * cart[name].qty;
-            total += sub; count++;
-            body.innerHTML += `
-                <div style="display:flex; justify-content:space-between; margin-bottom:12px; border-bottom:1px solid #eee; padding-bottom:8px;">
-                    <div style="flex:1;">
-                        <b>${name}</b><br>
-                        <small>${cart[name].qty} x ${cart[name].price.toFixed(2)}</small>
-                    </div>
-                    <div style="font-weight:bold; color:var(--accent);">${sub.toFixed(2)}</div>
-                    <i class="fas fa-trash" onclick="remove('${name.replace(/'/g, "\\'")}')" style="margin-left:10px; color:#ef4444; cursor:pointer;"></i>
-                </div>`;
+
+        if (Object.keys(cart).length === 0) {
+            body.innerHTML = `
+                <div style="text-align: center; padding: 40px 20px; color: #64748b;">
+                    <i class="fas fa-shopping-basket" style="font-size: 48px; margin-bottom: 15px; color: #cbd5e1;"></i>
+                    <h3 style="margin: 0 0 10px 0; color: var(--primary);">ඔබේ කරත්තය හිස්ය</h3>
+                    <p style="font-size: 14px; margin-bottom: 20px;">කරුණාකර භාණ්ඩ තෝරාගෙන කරත්තයට එකතු කරන්න.</p>
+                    <button onclick="toggleCart()" style="background: var(--accent); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; font-family: inherit;"><i class="fas fa-arrow-left"></i> නැවත භාණ්ඩ බැලීමට</button>
+                </div>
+            `;
+        } else {
+            for (let name in cart) {
+                const sub = cart[name].price * cart[name].qty;
+                total += sub; count++;
+                body.innerHTML += `
+                    <div style="display:flex; justify-content:space-between; align-items: center; margin-bottom:12px; border-bottom:1px solid #eee; padding-bottom:12px;">
+                        <div style="flex:1;">
+                            <b>${name}</b><br>
+                            <div style="display: flex; align-items: center; gap: 8px; margin-top: 5px;">
+                                <button onclick="changeQty('${name.replace(/'/g, "\\'")}', -1)" style="border: 1px solid #cbd5e1; background: #f8fafc; border-radius: 4px; width: 28px; height: 28px; cursor: pointer; font-weight: bold;">-</button>
+                                <input type="number" step="any" min="0" value="${cart[name].qty}" onchange="manualUpdateQty('${name.replace(/'/g, "\\'")}', this.value)" style="width: 60px; text-align: center; border: 1px solid #cbd5e1; border-radius: 4px; padding: 4px; font-family: inherit;">
+                                <button onclick="changeQty('${name.replace(/'/g, "\\'")}', 1)" style="border: 1px solid #cbd5e1; background: #f8fafc; border-radius: 4px; width: 28px; height: 28px; cursor: pointer; font-weight: bold;">+</button>
+                                <small style="margin-left: 5px;">x ${cart[name].price.toFixed(2)}</small>
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-weight:bold; color:var(--accent); margin-bottom: 5px;">${sub.toFixed(2)}</div>
+                            <i class="fas fa-trash" onclick="remove('${name.replace(/'/g, "\\'")}')" style="color:#ef4444; cursor:pointer;"></i>
+                        </div>
+                    </div>`;
+            }
         }
         document.getElementById('cartTotal').innerText = total.toFixed(2);
         document.getElementById('cartBadge').innerText = count;
+    }
+
+    function manualUpdateQty(name, val) {
+        const newQty = parseFloat(val);
+        if (isNaN(newQty) || newQty <= 0) {
+            remove(name);
+        } else {
+            cart[name].qty = newQty;
+            updateCartUI();
+        }
+    }
+
+    function changeQty(name, amount) {
+        if (cart[name]) {
+            let newQty = parseFloat((cart[name].qty + amount).toFixed(3));
+            if (newQty <= 0) {
+                remove(name);
+            } else {
+                cart[name].qty = newQty;
+                updateCartUI();
+            }
+        }
     }
 
     function remove(name) { delete cart[name]; updateCartUI(); }
