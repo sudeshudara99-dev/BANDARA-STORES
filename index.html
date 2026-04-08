@@ -4,28 +4,62 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>බණ්ඩාර ස්ටෝර්ස්</title>
+    
+    <meta name="theme-color" content="#0f172a">
+    <meta name="description" content="Bandara Stores Online Shopping">
+    <link rel="apple-touch-icon" href="https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=192&h=192&auto=format&fit=crop">
+
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Sinhala:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { --primary: #0f172a; --accent: #10b981; --light: #f8fafc; --white: #ffffff; --text: #334155; }
-        body { font-family: 'Noto Sans Sinhala', 'Aradhana', sans-serif; margin: 0; background: var(--light); color: var(--text); padding-bottom: 20px; }
+        body { font-family: 'Noto Sans Sinhala', 'Aradhana', sans-serif; margin: 0; background: var(--light); color: var(--text); padding-bottom: 20px; overflow-x: hidden; }
         header { background: linear-gradient(rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.8)), url('https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=1200&auto=format&fit=crop'); background-size: cover; background-position: center; color: white; padding: 50px 20px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; }
         header h1 { margin: 0; font-size: 32px; letter-spacing: 1px; color: var(--accent); }
         header p { margin: 10px 0 0; font-size: 16px; opacity: 0.9; }
+        
+        /* New: Discount Banner Animation */
+        .discount-banner { background: linear-gradient(45deg, #ef4444, #f59e0b); color: white; padding: 12px; text-align: center; font-weight: bold; font-size: 14px; position: relative; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .banner-content { display: inline-block; animation: pulseText 2s infinite; }
+        @keyframes pulseText { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+
         .controls { background: var(--white); padding: 15px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
-        .search-box { width: 100%; padding: 12px 15px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 16px; font-family: inherit; box-sizing: border-box; outline: none; }
+        .search-container { position: relative; display: flex; align-items: center; gap: 10px; }
+        .search-box { width: 100%; padding: 12px 45px 12px 15px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 16px; font-family: inherit; box-sizing: border-box; outline: none; }
+        .voice-btn { position: absolute; right: 15px; color: var(--accent); cursor: pointer; font-size: 18px; border: none; background: none; }
+        
         .category-bar { display: flex; overflow-x: auto; gap: 10px; margin-top: 15px; padding-bottom: 5px; scrollbar-width: none; }
         .cat-btn { background: #edf2f7; border: none; padding: 8px 18px; border-radius: 20px; cursor: pointer; white-space: nowrap; font-weight: bold; font-family: inherit; font-size: 14px; transition: 0.3s; }
         .cat-btn.active { background: var(--accent); color: white; }
+        
         .container { padding: 0 15px; max-width: 1200px; margin: auto; }
         .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
-        .card { background: var(--white); border-radius: 15px; padding: 15px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border: 1px solid #f1f5f9; transition: 0.3s; display: flex; flex-direction: column; justify-content: space-between; }
+        
+        /* Updated: Card Lazy Load Fade-in Animation */
+        .card { background: var(--white); border-radius: 15px; padding: 15px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border: 1px solid #f1f5f9; transition: 0.3s; display: flex; flex-direction: column; justify-content: space-between; position: relative; animation: fadeInCard 0.6s ease-out; }
+        @keyframes fadeInCard { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .product-img { width: 100%; height: 150px; object-fit: contain; border-radius: 10px; margin-bottom: 10px; background: #f1f5f9; }
         .item-name { font-weight: bold; font-size: 16px; color: var(--primary); margin-bottom: 8px; display: block; min-height: 40px; }
         .price { color: var(--accent); font-weight: 800; font-size: 18px; margin-bottom: 12px; display: block; }
         .qty-input { width: 100%; padding: 8px; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 10px; text-align: center; font-weight: bold; box-sizing: border-box; }
         .add-btn { background: var(--primary); color: white; border: none; width: 100%; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; font-family: inherit; transition: 0.2s; }
+        
         .floating-cart-btn { position: fixed; bottom: 25px; right: 25px; background: var(--accent); color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; box-shadow: 0 8px 20px rgba(16,185,129,0.4); z-index: 1000; }
         .cart-badge { position: absolute; top: 0; right: 0; background: #ef4444; color: white; font-size: 12px; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid white; }
+        
+        /* Animation CSS */
+        .fly-item {
+            position: fixed;
+            z-index: 9999;
+            width: 50px;
+            height: 50px;
+            background: var(--accent);
+            border-radius: 50%;
+            pointer-events: none;
+            transition: all 0.8s cubic-bezier(0.24, 1.2, 0.44, 0.81);
+        }
+
         .cart-sidebar { position: fixed; top: 0; right: -100%; width: 100%; max-width: 400px; height: 100%; background: white; z-index: 1001; transition: 0.4s; display: flex; flex-direction: column; }
         .cart-sidebar.open { right: 0; }
         .cart-header { padding: 20px; background: var(--primary); color: white; display: flex; justify-content: space-between; align-items: center; }
@@ -36,14 +70,25 @@
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; display: none; }
         .overlay.open { display: block; }
 
-        .product-img {
-            width: 100%;
-            height: 150px; 
-            object-fit: contain; 
-            border-radius: 10px;
-            margin-bottom: 10px;
-            background: #f1f5f9;
-        }
+        /* New: Contact Section */
+        .contact-section { background: var(--white); padding: 20px; border-radius: 15px; margin: 30px 15px 10px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border: 1px solid #f1f5f9; }
+        .contact-section h3 { margin: 0 0 15px 0; color: var(--primary); font-size: 18px; }
+        .contact-links { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
+        .contact-item { display: flex; align-items: center; gap: 8px; color: var(--text); text-decoration: none; font-weight: bold; padding: 10px 15px; background: var(--light); border-radius: 10px; transition: 0.3s; font-size: 14px; }
+        .contact-item:hover { background: #e2e8f0; }
+        .contact-item.wa i { color: #25d366; font-size: 18px; }
+        .contact-item.ph i { color: #3b82f6; font-size: 18px; }
+        .contact-item.em i { color: #ef4444; font-size: 18px; }
+
+        /* New: Success Animation Modal */
+        .success-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+        .success-modal.show { opacity: 1; pointer-events: auto; }
+        .success-content { background: white; padding: 40px; border-radius: 20px; text-align: center; transform: scale(0.8); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .success-modal.show .success-content { transform: scale(1); }
+        .success-icon { font-size: 60px; color: #10b981; margin-bottom: 15px; display: inline-block; animation: popCheck 0.5s ease-out forwards; }
+        @keyframes popCheck { 0% { transform: scale(0); } 80% { transform: scale(1.2); } 100% { transform: scale(1); } }
+        .success-content h2 { color: var(--primary); margin: 0 0 10px 0; }
+        .success-content p { color: var(--text); margin: 0; }
 
     </style>
 </head>
@@ -55,8 +100,17 @@
     <p>සිල්ලර සහ තොග වෙලදාමේ විශ්වසනිය නාමය</p>
 </header>
 
+<div class="discount-banner">
+    <div class="banner-content">
+        <i class="fas fa-gift"></i> සුවිශේෂී දීමනා: තෝරාගත් භාණ්ඩ සඳහා 10% දක්වා වට්ටම්!
+    </div>
+</div>
+
 <div class="controls">
-    <input type="text" id="searchBar" class="search-box" placeholder="බඩු නම සොයන්න..." oninput="handleSearch()">
+    <div class="search-container">
+        <input type="text" id="searchBar" class="search-box" placeholder="බඩු නම සොයන්න..." oninput="handleSearch()">
+        <button class="voice-btn" onclick="startVoiceSearch()"><i class="fas fa-microphone"></i></button>
+    </div>
     <div class="category-bar" id="categoryBar"></div>
 </div>
 
@@ -65,11 +119,22 @@
     <div id="productDisplay" class="product-grid"></div>
 </div>
 
-<div style="text-align: center; padding: 25px 15px 10px; margin-top: 30px; color: #64748b; font-size: 14px; border-top: 1px solid #e2e8f0;">
+<div class="container">
+    <div class="contact-section">
+        <h3>අප හා සම්බන්ධ වන්න</h3>
+        <div class="contact-links">
+            <a href="https://wa.me/94711877276" target="_blank" class="contact-item wa"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+            <a href="tel:+94711877276" class="contact-item ph"><i class="fas fa-phone-alt"></i> ඇමතුම්</a>
+            <a href="mailto:bandarastores@gmail.com" class="contact-item em"><i class="fas fa-envelope"></i> ඊමේල්</a>
+        </div>
+    </div>
+</div>
+
+<div style="text-align: center; padding: 15px 15px 10px; color: #64748b; font-size: 14px; border-top: 1px solid #e2e8f0;">
     System developed by <strong>Sudesh Udara</strong>
 </div>
 
-<div class="floating-cart-btn" onclick="toggleCart()">
+<div class="floating-cart-btn" id="cartBtn" onclick="toggleCart()">
     <i class="fas fa-shopping-cart"></i>
     <div class="cart-badge" id="cartBadge">0</div>
 </div>
@@ -111,12 +176,58 @@
     </div>
 </div>
 
+<div class="success-modal" id="successModal">
+    <div class="success-content">
+        <i class="fas fa-check-circle success-icon"></i>
+        <h2>ස්තූතියි!</h2>
+        <p>ඔබේ ඇණවුම සාර්ථකව යොමු කරමින් පවතී...</p>
+    </div>
+</div>
+
 <script>
-    const API_URL = 'https://script.google.com/macros/s/AKfycbyQvD3Hk3yjt2WGImrriX9MX222x3tOOWTVl8Ils0pD7XW1lFByf0UDsX-OBJL7fc9-/exec';
+    const API_URL = 'https://script.google.com/macros/s/AKfycbzs0r-sWW112pGrxG15Nx6A49bdta-J_JO7DBSlwZERm3S_XvJnQSowCp_BhLaWIeY1/exec';
     let products = [];
     let cart = {};
     let selectedCat = 'All';
     let searchTimeout;
+
+    // --- Voice Search Function ---
+    function startVoiceSearch() {
+        if (!('webkitSpeechRecognition' in window)) {
+            alert("ඔබේ Browser එක Voice Search සඳහා සහය නොදක්වයි.");
+            return;
+        }
+        const recognition = new webkitSpeechRecognition();
+        recognition.lang = 'si-LK';
+        recognition.onresult = (event) => {
+            const text = event.results[0][0].transcript;
+            document.getElementById('searchBar').value = text;
+            render();
+        };
+        recognition.start();
+    }
+
+    // --- Fly to Cart Animation ---
+    function animateFly(btnElement) {
+        const cartBtn = document.getElementById('cartBtn');
+        const btnRect = btnElement.getBoundingClientRect();
+        const cartRect = cartBtn.getBoundingClientRect();
+
+        const flyer = document.createElement('div');
+        flyer.className = 'fly-item';
+        flyer.style.left = btnRect.left + 'px';
+        flyer.style.top = btnRect.top + 'px';
+        document.body.appendChild(flyer);
+
+        setTimeout(() => {
+            flyer.style.left = (cartRect.left + 10) + 'px';
+            flyer.style.top = (cartRect.top + 10) + 'px';
+            flyer.style.transform = 'scale(0.2)';
+            flyer.style.opacity = '0.5';
+        }, 10);
+
+        setTimeout(() => { flyer.remove(); }, 800);
+    }
 
     async function load() {
         const CACHE_KEY = 'bandara_products';
@@ -137,6 +248,12 @@
                 const res = await fetch(API_URL);
                 products = await res.json();
                 
+                // Image Optimization (Size reduction logic placeholder)
+                products = products.map(p => ({
+                    ...p,
+                    Photo: p.Photo ? p.Photo.replace('auto=format', 'auto=format&w=300&q=75') : '' 
+                }));
+
                 localStorage.setItem(CACHE_KEY, JSON.stringify(products));
                 localStorage.setItem(CACHE_TIME_KEY, now);
                 
@@ -166,9 +283,7 @@
 
     function handleSearch() {
         clearTimeout(searchTimeout);
-        searchTimeout = setTimeout(() => {
-            render();
-        }, 300);
+        searchTimeout = setTimeout(() => { render(); }, 300);
     }
 
    function render() {
@@ -180,33 +295,30 @@
             (p.Name && p.Name.toLowerCase().includes(search))
         );
 
+        // Images already have native lazy load attribute. Added animation to CSS.
         display.innerHTML = filtered.map((p, i) => {
             let price = parseFloat(p.OurPrice || 0);
             let mrp = parseFloat(p.MRP || 0);
-            
             let imgUrl = p.Photo ? p.Photo : 'https://via.placeholder.com/150?text=No+Image';
-
-            let mrpDisplay = (mrp > price) ? 
-                `<span style="text-decoration: line-through; color: #94a3b8; font-size: 13px; display: block;">MRP: රු. ${mrp.toFixed(2)}</span>` : '';
-
-            // Escape quotes inside product names to prevent breaking HTML attributes
+            let mrpDisplay = (mrp > price) ? `<span style="text-decoration: line-through; color: #94a3b8; font-size: 13px; display: block;">MRP: රු. ${mrp.toFixed(2)}</span>` : '';
             let escapedName = p.Name.replace(/'/g, "\\'").replace(/"/g, "&quot;");
 
             return `
-            <div class="card">
+            <div class="card" style="animation-delay: ${i * 0.05}s">
                 <img src="${imgUrl}" class="product-img" alt="${escapedName}" loading="lazy">
                 <span class="item-name">${p.Name}</span>
                 ${mrpDisplay}
                 <span class="price">රු. ${price.toFixed(2)}</span>
                 <input type="number" value="1" min="0.1" step="any" class="qty-input">
-                <button class="add-btn" onclick="addToCart('${escapedName}', ${price}, this.previousElementSibling.value)">එක් කරන්න</button>
+                <button class="add-btn" onclick="addToCart('${escapedName}', ${price}, this.previousElementSibling.value, this)">එක් කරන්න</button>
             </div>`;
         }).join('');
     }
 
-    function addToCart(name, price, qtyValue) {
+    function addToCart(name, price, qtyValue, btn) {
         const qty = parseFloat(qtyValue);
         if(qty > 0) {
+            animateFly(btn);
             cart[name] = cart[name] || { price, qty: 0 };
             cart[name].qty += qty;
             updateCartUI();
@@ -216,9 +328,7 @@
     function updateQty(name, amount) {
         if(cart[name]) {
             cart[name].qty += amount;
-            if(cart[name].qty <= 0) {
-                delete cart[name];
-            }
+            if(cart[name].qty <= 0) delete cart[name];
             updateCartUI();
         }
     }
@@ -233,19 +343,13 @@
     function updateCartUI() {
         const body = document.getElementById('cartBody');
         const locationEl = document.getElementById('deliveryLocation');
-        
-        // තෝරාගත් ප්‍රදේශයේ ගාස්තුව ලබා ගැනීම
         const deliveryCharge = locationEl ? parseFloat(locationEl.options[locationEl.selectedIndex].dataset.fee) : 0;
         
         let subtotal = 0, count = 0;
         body.innerHTML = '';
 
         if (Object.keys(cart).length === 0) {
-            body.innerHTML = `
-                <div style="text-align: center; color: #94a3b8; padding: 40px 20px; font-size: 16px;">
-                    ඔබේ ඇණවුම හිස්ය <br>
-                    <i class="fas fa-shopping-basket" style="font-size: 40px; margin-top: 15px; opacity: 0.3;"></i>
-                </div>`;
+            body.innerHTML = `<div style="text-align: center; color: #94a3b8; padding: 40px 20px; font-size: 16px;">ඔබේ ඇණවුම හිස්ය <br><i class="fas fa-shopping-basket" style="font-size: 40px; margin-top: 15px; opacity: 0.3;"></i></div>`;
             document.getElementById('cartSubtotal').innerText = '0.00';
             document.getElementById('deliveryFeeDisplay').innerText = '0.00';
             document.getElementById('cartTotal').innerText = '0.00';
@@ -266,20 +370,16 @@
                 </div>
                 <div style="display:flex; justify-content:space-between; align-items:center;">
                     <div style="display:flex; align-items:center; gap:8px;">
-                        <button onclick="updateQty('${escapedName}', -1)" style="background:#f1f5f9; border:1px solid #e2e8f0; width:28px; height:28px; border-radius:6px; cursor:pointer; font-weight:bold; color:var(--text); transition:0.2s;">-</button>
-                        <span style="font-weight:bold; width: 35px; text-align: center; font-size: 14px;">${cart[name].qty}</span>
-                        <button onclick="updateQty('${escapedName}', 1)" style="background:#f1f5f9; border:1px solid #e2e8f0; width:28px; height:28px; border-radius:6px; cursor:pointer; font-weight:bold; color:var(--text); transition:0.2s;">+</button>
+                        <button onclick="updateQty('${escapedName}', -1)" style="background:#f1f5f9; border:1px solid #e2e8f0; width:28px; height:28px; border-radius:6px; cursor:pointer;">-</button>
+                        <span style="font-weight:bold; width: 35px; text-align: center;">${cart[name].qty}</span>
+                        <button onclick="updateQty('${escapedName}', 1)" style="background:#f1f5f9; border:1px solid #e2e8f0; width:28px; height:28px; border-radius:6px; cursor:pointer;">+</button>
                     </div>
-                    <button onclick="removeItem('${escapedName}')" style="background:#ef4444; color:white; border:none; padding:6px 10px; border-radius:6px; cursor:pointer; font-size:12px; transition:0.2s;">
-                        <i class="fas fa-trash"></i> ඉවත් කරන්න
-                    </button>
+                    <button onclick="removeItem('${escapedName}')" style="background:#ef4444; color:white; border:none; padding:6px 10px; border-radius:6px; cursor:pointer; font-size:12px;"><i class="fas fa-trash"></i></button>
                 </div>
             </div>`;
         }
         
         const grandTotal = subtotal + deliveryCharge;
-        
-        // මිල ගණන් යාවත්කාලීන කිරීම
         document.getElementById('cartSubtotal').innerText = subtotal.toFixed(2);
         document.getElementById('deliveryFeeDisplay').innerText = deliveryCharge.toFixed(2);
         document.getElementById('cartTotal').innerText = grandTotal.toFixed(2);
@@ -291,34 +391,42 @@
         document.getElementById('overlay').classList.toggle('open');
     }
 
+    // Updated: WhatsApp send function with Success Animation
     function sendWhatsApp() {
-        if(Object.keys(cart).length === 0) return alert("ඔබේ ඇණවුම හිස්ය. කරුණාකර භාණ්ඩ එක් කරන්න.");
+        if(Object.keys(cart).length === 0) return alert("ඔබේ ඇණවුම හිස්ය.");
         const name = document.getElementById('custName').value.trim();
         const addr = document.getElementById('custAddress').value.trim();
         const locationEl = document.getElementById('deliveryLocation');
         
-        if(!name || !addr) return alert("කරුණාකර නම සහ ලිපිනය ඇතුලත් කරන්න.");
-        if(locationEl.value === "0") return alert("කරුණාකර ප්‍රවාහන ක්‍රමයක් තෝරන්න.");
+        if(!name || !addr || locationEl.value === "0") return alert("කරුණාකර සියලු විස්තර පුරවන්න.");
 
         const locationName = locationEl.options[locationEl.selectedIndex].text;
-        const deliveryCharge = parseFloat(locationEl.options[locationEl.selectedIndex].dataset.fee);
-
         let msg = `*නව ඇණවුම - බණ්ඩාර ස්ටෝර්ස්*%0A👤 නම: ${name}%0A📍 ලිපිනය: ${addr}%0A🚚 ප්‍රවාහන ක්‍රමය: ${locationName}%0A%0A`;
         
-        for (let n in cart) { 
-            msg += `• ${n} (x${cart[n].qty}) = රු.${(cart[n].price * cart[n].qty).toFixed(2)}%0A`; 
-        }
+        for (let n in cart) { msg += `• ${n} (x${cart[n].qty}) = රු.${(cart[n].price * cart[n].qty).toFixed(2)}%0A`; }
         
-        msg += `%0A📦 භාණ්ඩ එකතුව: රු. ${document.getElementById('cartSubtotal').innerText}`;
-        msg += `%0A➕ ප්‍රවාහන ගාස්තුව: රු. ${deliveryCharge.toFixed(2)}`;
         msg += `%0A💰 *මුළු එකතුව: රු. ${document.getElementById('cartTotal').innerText}*`;
         
-        window.open(`https://wa.me/94711877276?text=${msg}`, '_blank');
+        // Show success animation
+        const modal = document.getElementById('successModal');
+        modal.classList.add('show');
+        
+        // Wait 1.5 seconds, hide animation and open WhatsApp
+        setTimeout(() => {
+            modal.classList.remove('show');
+            window.open(`https://wa.me/94711877276?text=${msg}`, '_blank');
+        }, 1500);
     }
 
-    updateCartUI(); // Initialized empty cart view
-    load();
+    // --- Service Worker for PWA (Simplified) ---
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('data:text/javascript;base64,c2VsZi5hZGRFdmVudExpc3RlbmVyKCdmZXRjaCcsIGV2ZW50ID0+IHsgfSk7');
+        });
+    }
 
+    updateCartUI();
+    load();
 </script>
 </body>
 </html>
