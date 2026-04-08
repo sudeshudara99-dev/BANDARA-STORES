@@ -83,12 +83,30 @@
     </div>
     <div class="cart-body" id="cartBody"></div>
     <div class="cart-footer">
+        <div style="display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 5px; font-size: 14px; color: #64748b;">
+            <span>භාණ්ඩ එකතුව:</span>
+            <span>රු. <span id="cartSubtotal">0.00</span></span>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 10px; font-size: 14px; color: #64748b;">
+            <span>ප්‍රවාහන ගාස්තුව:</span>
+            <span>රු. <span id="deliveryFeeDisplay">0.00</span></span>
+        </div>
         <div style="display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 15px; font-size: 18px;">
             <span>මුළු එකතුව:</span>
             <span>රු. <span id="cartTotal">0.00</span></span>
         </div>
+
         <input type="text" id="custName" class="customer-input" placeholder="ඔබේ නම">
         <textarea id="custAddress" class="customer-input" placeholder="ලිපිනය" rows="2"></textarea>
+        
+        <select id="deliveryLocation" class="customer-input" onchange="updateCartUI()">
+            <option value="0" data-fee="0">ප්‍රවාහන ක්‍රමය තෝරන්න</option>
+            <option value="Store Pickup" data-fee="0">කඩයට පැමිණ ලබා ගැනීම (Free)</option>
+            <option value="Navagattegama" data-fee="150">නවගත්තේගම අවට (රු. 150)</option>
+            <option value="Anamaduwa" data-fee="300">ආණමඩුව (රු. 300)</option>
+            <option value="Other" data-fee="450">වෙනත් ප්‍රදේශ (රු. 450)</option>
+        </select>
+
         <button class="checkout-btn" onclick="sendWhatsApp()"><i class="fab fa-whatsapp"></i> ඇණවුම් කරන්න</button>
     </div>
 </div>
@@ -98,30 +116,27 @@
     let products = [];
     let cart = {};
     let selectedCat = 'All';
-    let searchTimeout; // Debouncing සඳහා
+    let searchTimeout;
 
     async function load() {
         const CACHE_KEY = 'bandara_products';
         const CACHE_TIME_KEY = 'bandara_cache_time';
-        const CACHE_DURATION = 1000 * 60 * 60; // පැය 1ක Cache කාලයක් (1 Hour)
+        const CACHE_DURATION = 1000 * 60 * 60; 
 
         const cachedData = localStorage.getItem(CACHE_KEY);
         const cacheTime = localStorage.getItem(CACHE_TIME_KEY);
         const now = new Date().getTime();
 
         try {
-            // Cache එකක් තිබේ නම් සහ එය පැයකට වඩා පැරණි නැති නම්
             if (cachedData && cacheTime && (now - cacheTime < CACHE_DURATION)) {
                 products = JSON.parse(cachedData);
                 document.getElementById('loading').style.display = 'none';
                 updateCats();
                 render();
             } else {
-                // Cache නැති නම් හෝ කල් ඉකුත් වී ඇත්නම් API එකෙන් දත්ත ගන්න
                 const res = await fetch(API_URL);
                 products = await res.json();
                 
-                // අලුත් දත්ත Local Storage එකේ සේව් කරන්න
                 localStorage.setItem(CACHE_KEY, JSON.stringify(products));
                 localStorage.setItem(CACHE_TIME_KEY, now);
                 
@@ -149,45 +164,48 @@
         render();
     }
 
-    // Debouncing Search Function
     function handleSearch() {
         clearTimeout(searchTimeout);
         searchTimeout = setTimeout(() => {
             render();
-        }, 300); // අකුරක් ගහලා මිලි තත්පර 300ක් ගියාම තමා render වෙන්නේ
+        }, 300);
     }
 
    function render() {
-    const search = document.getElementById('searchBar').value.toLowerCase();
-    const display = document.getElementById('productDisplay');
-    
-    const filtered = products.filter(p => 
-        (selectedCat === 'All' || p.Category === selectedCat) && 
-        (p.Name && p.Name.toLowerCase().includes(search))
-    );
-
-    display.innerHTML = filtered.map((p, i) => {
-        let price = parseFloat(p.OurPrice || 0);
-        let mrp = parseFloat(p.MRP || 0);
+        const search = document.getElementById('searchBar').value.toLowerCase();
+        const display = document.getElementById('productDisplay');
         
-        let imgUrl = p.Photo ? p.Photo : 'https://via.placeholder.com/150?text=No+Image';
+        const filtered = products.filter(p => 
+            (selectedCat === 'All' || p.Category === selectedCat) && 
+            (p.Name && p.Name.toLowerCase().includes(search))
+        );
 
-        let mrpDisplay = (mrp > price) ? 
-            `<span style="text-decoration: line-through; color: #94a3b8; font-size: 13px; display: block;">MRP: රු. ${mrp.toFixed(2)}</span>` : '';
+        display.innerHTML = filtered.map((p, i) => {
+            let price = parseFloat(p.OurPrice || 0);
+            let mrp = parseFloat(p.MRP || 0);
+            
+            let imgUrl = p.Photo ? p.Photo : 'https://via.placeholder.com/150?text=No+Image';
 
-        return `
-        <div class="card">
-            <img src="${imgUrl}" class="product-img" alt="${p.Name}" loading="lazy">
-            <span class="item-name">${p.Name}</span>
-            ${mrpDisplay}
-            <span class="price">රු. ${price.toFixed(2)}</span>
-            <input type="number" id="qty-${i}" value="1" min="0.1" step="any" class="qty-input">
-            <button class="add-btn" onclick="addToCart('${p.Name.replace(/'/g, "\\'")}', ${price}, ${i})">එක් කරන්න</button>
-        </div>`;
-    }).join('');
-}
-    function addToCart(name, price, i) {
-        const qty = parseFloat(document.getElementById(`qty-${i}`).value);
+            let mrpDisplay = (mrp > price) ? 
+                `<span style="text-decoration: line-through; color: #94a3b8; font-size: 13px; display: block;">MRP: රු. ${mrp.toFixed(2)}</span>` : '';
+
+            // Escape quotes inside product names to prevent breaking HTML attributes
+            let escapedName = p.Name.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+
+            return `
+            <div class="card">
+                <img src="${imgUrl}" class="product-img" alt="${escapedName}" loading="lazy">
+                <span class="item-name">${p.Name}</span>
+                ${mrpDisplay}
+                <span class="price">රු. ${price.toFixed(2)}</span>
+                <input type="number" value="1" min="0.1" step="any" class="qty-input">
+                <button class="add-btn" onclick="addToCart('${escapedName}', ${price}, this.previousElementSibling.value)">එක් කරන්න</button>
+            </div>`;
+        }).join('');
+    }
+
+    function addToCart(name, price, qtyValue) {
+        const qty = parseFloat(qtyValue);
         if(qty > 0) {
             cart[name] = cart[name] || { price, qty: 0 };
             cart[name].qty += qty;
@@ -195,19 +213,76 @@
         }
     }
 
+    function updateQty(name, amount) {
+        if(cart[name]) {
+            cart[name].qty += amount;
+            if(cart[name].qty <= 0) {
+                delete cart[name];
+            }
+            updateCartUI();
+        }
+    }
+
+    function removeItem(name) {
+        if(cart[name]) {
+            delete cart[name];
+            updateCartUI();
+        }
+    }
+
     function updateCartUI() {
         const body = document.getElementById('cartBody');
-        let total = 0, count = 0;
+        const locationEl = document.getElementById('deliveryLocation');
+        
+        // තෝරාගත් ප්‍රදේශයේ ගාස්තුව ලබා ගැනීම
+        const deliveryCharge = locationEl ? parseFloat(locationEl.options[locationEl.selectedIndex].dataset.fee) : 0;
+        
+        let subtotal = 0, count = 0;
         body.innerHTML = '';
+
+        if (Object.keys(cart).length === 0) {
+            body.innerHTML = `
+                <div style="text-align: center; color: #94a3b8; padding: 40px 20px; font-size: 16px;">
+                    ඔබේ ඇණවුම හිස්ය <br>
+                    <i class="fas fa-shopping-basket" style="font-size: 40px; margin-top: 15px; opacity: 0.3;"></i>
+                </div>`;
+            document.getElementById('cartSubtotal').innerText = '0.00';
+            document.getElementById('deliveryFeeDisplay').innerText = '0.00';
+            document.getElementById('cartTotal').innerText = '0.00';
+            document.getElementById('cartBadge').innerText = '0';
+            return;
+        }
+
         for (let name in cart) {
             const sub = cart[name].price * cart[name].qty;
-            total += sub; count++;
-            body.innerHTML += `<div style="display:flex; justify-content:space-between; margin-bottom:10px; border-bottom:1px solid #eee; padding-bottom:5px;">
-                <span>${name} (x${cart[name].qty})</span>
-                <span>රු. ${sub.toFixed(2)}</span>
+            subtotal += sub; count++;
+            let escapedName = name.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+            
+            body.innerHTML += `
+            <div style="display:flex; flex-direction:column; margin-bottom:15px; border-bottom:1px solid #eee; padding-bottom:12px;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size: 15px;">
+                    <span style="font-weight: 600;">${name}</span>
+                    <span style="color: var(--accent); font-weight: bold;">රු. ${sub.toFixed(2)}</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <button onclick="updateQty('${escapedName}', -1)" style="background:#f1f5f9; border:1px solid #e2e8f0; width:28px; height:28px; border-radius:6px; cursor:pointer; font-weight:bold; color:var(--text); transition:0.2s;">-</button>
+                        <span style="font-weight:bold; width: 35px; text-align: center; font-size: 14px;">${cart[name].qty}</span>
+                        <button onclick="updateQty('${escapedName}', 1)" style="background:#f1f5f9; border:1px solid #e2e8f0; width:28px; height:28px; border-radius:6px; cursor:pointer; font-weight:bold; color:var(--text); transition:0.2s;">+</button>
+                    </div>
+                    <button onclick="removeItem('${escapedName}')" style="background:#ef4444; color:white; border:none; padding:6px 10px; border-radius:6px; cursor:pointer; font-size:12px; transition:0.2s;">
+                        <i class="fas fa-trash"></i> ඉවත් කරන්න
+                    </button>
+                </div>
             </div>`;
         }
-        document.getElementById('cartTotal').innerText = total.toFixed(2);
+        
+        const grandTotal = subtotal + deliveryCharge;
+        
+        // මිල ගණන් යාවත්කාලීන කිරීම
+        document.getElementById('cartSubtotal').innerText = subtotal.toFixed(2);
+        document.getElementById('deliveryFeeDisplay').innerText = deliveryCharge.toFixed(2);
+        document.getElementById('cartTotal').innerText = grandTotal.toFixed(2);
         document.getElementById('cartBadge').innerText = count;
     }
 
@@ -217,15 +292,31 @@
     }
 
     function sendWhatsApp() {
+        if(Object.keys(cart).length === 0) return alert("ඔබේ ඇණවුම හිස්ය. කරුණාකර භාණ්ඩ එක් කරන්න.");
         const name = document.getElementById('custName').value.trim();
         const addr = document.getElementById('custAddress').value.trim();
-        if(!name || !addr) return alert("නම සහ ලිපිනය ඇතුලත් කරන්න.");
-        let msg = `*නව ඇණවුම - බණ්ඩාර ස්ටෝර්ස්*%0A👤 නම: ${name}%0A📍 ලිපිනය: ${addr}%0A%0A`;
-        for (let n in cart) { msg += `• ${n} (x${cart[n].qty}) = රු.${(cart[n].price * cart[n].qty).toFixed(2)}%0A`; }
+        const locationEl = document.getElementById('deliveryLocation');
+        
+        if(!name || !addr) return alert("කරුණාකර නම සහ ලිපිනය ඇතුලත් කරන්න.");
+        if(locationEl.value === "0") return alert("කරුණාකර ප්‍රවාහන ක්‍රමයක් තෝරන්න.");
+
+        const locationName = locationEl.options[locationEl.selectedIndex].text;
+        const deliveryCharge = parseFloat(locationEl.options[locationEl.selectedIndex].dataset.fee);
+
+        let msg = `*නව ඇණවුම - බණ්ඩාර ස්ටෝර්ස්*%0A👤 නම: ${name}%0A📍 ලිපිනය: ${addr}%0A🚚 ප්‍රවාහන ක්‍රමය: ${locationName}%0A%0A`;
+        
+        for (let n in cart) { 
+            msg += `• ${n} (x${cart[n].qty}) = රු.${(cart[n].price * cart[n].qty).toFixed(2)}%0A`; 
+        }
+        
+        msg += `%0A📦 භාණ්ඩ එකතුව: රු. ${document.getElementById('cartSubtotal').innerText}`;
+        msg += `%0A➕ ප්‍රවාහන ගාස්තුව: රු. ${deliveryCharge.toFixed(2)}`;
         msg += `%0A💰 *මුළු එකතුව: රු. ${document.getElementById('cartTotal').innerText}*`;
+        
         window.open(`https://wa.me/94711877276?text=${msg}`, '_blank');
     }
 
+    updateCartUI(); // Initialized empty cart view
     load();
 
 </script>
